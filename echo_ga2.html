@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Echo · Group Assignment 2 · MPCS 51240</title>
+<style>
+  :root {
+    --bg: #fafaf8;
+    --bg-card: #ffffff;
+    --bg-elev: #f4f3ef;
+    --ink: #1a1a1a;
+    --ink-soft: #4a4a48;
+    --ink-mute: #6b6b68;
+    --accent: #1F3864;
+    --accent-soft: #2E75B6;
+    --accent-bg: #E8EEF4;
+    --rule: #d8d6d0;
+    --rule-soft: #ececea;
+    --warn: #b54834;
+    --good: #2d7a4b;
+    --pivot: #a26c1d;
+    --shadow: 0 1px 2px rgba(20,18,15,.05), 0 4px 16px rgba(20,18,15,.04);
+    --shadow-lg: 0 4px 12px rgba(20,18,15,.06), 0 20px 60px rgba(20,18,15,.08);
+    --radius: 10px;
+    --serif: "Iowan Old Style", "Apple Garamond", Baskerville, "Times New Roman", serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Inter", "Helvetica Neue", Arial, sans-serif;
+    --mono: "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  }
+  [data-theme="dark"] {
+    --bg: #14130f;
+    --bg-card: #1c1b17;
+    --bg-elev: #232218;
+    --ink: #ece9df;
+    --ink-soft: #c4c1b6;
+    --ink-mute: #8e8a7e;
+    --accent: #7eb3f0;
+    --accent-soft: #4d92d6;
+    --accent-bg: #1f2a3a;
+    --rule: #2e2c26;
+    --rule-soft: #28261f;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 4px 16px rgba(0,0,0,.3);
+    --shadow-lg: 0 4px 12px rgba(0,0,0,.4), 0 20px 60px rgba(0,0,0,.5);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* ============== LAYOUT ============== */
+  .shell { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+  @media (max-width: 900px) { .shell { grid-template-columns: 1fr; } }
+
+  nav.sidebar {
+    position: sticky; top: 0; height: 100vh;
+    padding: 32px 22px;
+    background: var(--bg-elev);
+    border-right: 1px solid var(--rule);
+    overflow-y: auto;
+    font-size: 13.5px;
+  }
+  @media (max-width: 900px) { nav.sidebar { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--rule); } }
+  nav.sidebar h2 {
+    font-family: var(--serif); font-style: italic;
+    font-size: 22px; margin: 0 0 6px; letter-spacing: -.01em;
+  }
+  nav.sidebar .subtitle { color: var(--ink-mute); font-size: 11.5px; margin-bottom: 22px; line-height: 1.4; }
+  nav.sidebar ul { list-style: none; padding: 0; margin: 0; }
+  nav.sidebar li { margin: 0; }
+  nav.sidebar a {
+    display: block; padding: 6px 10px; margin: 1px 0;
+    color: var(--ink-soft); text-decoration: none;
+    border-radius: 6px; border-left: 2px solid transparent;
+    transition: all .15s ease;
+  }
+  nav.sidebar a:hover { background: var(--bg-card); color: var(--accent); }
+  nav.sidebar a.active { background: var(--bg-card); color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
+  nav.sidebar .nav-section { margin-top: 18px; }
+  nav.sidebar .nav-section-label {
+    font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--ink-mute); padding: 0 10px; margin-bottom: 4px;
+  }
+  nav.sidebar a.sub { padding-left: 22px; font-size: 12.5px; }
+
+  main {
+    padding: 60px max(40px, 8vw) 100px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  @media (max-width: 900px) { main { padding: 40px 24px 60px; } }
+
+  /* ============== TYPOGRAPHY ============== */
+  .cover {
+    text-align: center;
+    margin-bottom: 80px;
+    padding: 60px 20px 50px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .cover h1 {
+    font-family: var(--serif);
+    font-size: clamp(56px, 10vw, 96px);
+    font-weight: 400;
+    letter-spacing: -.04em;
+    line-height: 1; margin: 0 0 18px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-soft) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .cover .sub {
+    font-family: var(--serif); font-style: italic;
+    font-size: 19px; color: var(--ink-soft);
+    margin-bottom: 6px;
+  }
+  .cover .meta {
+    font-size: 13px; color: var(--ink-mute);
+    letter-spacing: .04em; text-transform: uppercase;
+  }
+  .cover .pill-row {
+    display: flex; gap: 10px; justify-content: center; margin-top: 28px; flex-wrap: wrap;
+  }
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 12px; border-radius: 20px;
+    background: var(--accent-bg); color: var(--accent);
+    font-size: 12px; font-weight: 500;
+  }
+
+  h1.section {
+    font-family: var(--serif);
+    font-size: 44px; font-weight: 400; letter-spacing: -.025em;
+    color: var(--accent);
+    margin: 80px 0 18px;
+    padding-top: 30px;
+    border-top: 3px solid var(--accent);
+    line-height: 1.1;
+  }
+  h1.section .num { color: var(--ink-mute); font-size: 22px; display: block; margin-bottom: 4px; letter-spacing: 0; font-style: italic; }
+
+  h2 {
+    font-family: var(--serif);
+    font-size: 28px; font-weight: 500;
+    color: var(--accent-soft);
+    margin: 50px 0 12px;
+    letter-spacing: -.015em;
+  }
+  h3 {
+    font-size: 16px; font-weight: 600;
+    margin: 28px 0 8px;
+    color: var(--ink);
+    letter-spacing: -.005em;
+  }
+  p { margin: 12px 0; color: var(--ink-soft); }
+  p.lead { font-size: 18px; line-height: 1.55; color: var(--ink); font-family: var(--serif); font-style: italic; }
+  p strong { color: var(--ink); font-weight: 600; }
+  ul { padding-left: 22px; }
+  li { margin: 6px 0; color: var(--ink-soft); }
+  li strong { color: var(--ink); }
+  em { font-style: italic; }
+  blockquote {
+    margin: 18px 0; padding: 16px 22px;
+    background: var(--bg-elev);
+    border-left: 3px solid var(--accent-soft);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    font-family: var(--serif); font-style: italic;
+    color: var(--ink); font-size: 15.5px;
+    line-height: 1.55;
+  }
+  .ref { color: var(--accent); font-size: 11px; vertical-align: super; cursor: help; text-decoration: none; }
+  .ref:hover { text-decoration: underline; }
+
+  /* ============== CARDS ============== */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    margin: 16px 0;
+    box-shadow: var(--shadow);
+  }
+  .card-quiet {
+    background: var(--bg-elev);
+    border: 1px solid var(--rule-soft);
+    border-radius: var(--radius);
+    padding: 18px 22px;
+    margin: 16px 0;
+    font-size: 14px;
+    color: var(--ink-mute);
+    font-style: italic;
+  }
+  .note-banner {
+    background: linear-gradient(135deg, #fffaeb 0%, #fef5d8 100%);
+    border: 1px solid #f0d680;
+    border-left: 4px solid #c89020;
+    padding: 18px 22px;
+    border-radius: var(--radius);
+    margin: 20px 0 30px;
+    font-size: 14.5px;
+    color: #5d4515;
+  }
+  [data-theme="dark"] .note-banner {
+    background: linear-gradient(135deg, #2a2418 0%, #322a1c 100%);
+    border-color: #5a4a20;
+    border-left-color: #c89020;
+    color: #d8c890;
+  }
+
+  /* ============== TABLES ============== */
+  .table-wrap { overflow-x: auto; margin: 18px 0; border-radius: var(--radius); box-shadow: var(--shadow); }
+  table {
+    width: 100%; border-collapse: collapse;
+    background: var(--bg-card);
+    font-size: 13.5px;
+  }
+  th, td {
+    padding: 12px 14px; text-align: left; vertical-align: top;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  th {
+    background: var(--accent-bg); color: var(--accent);
+    font-weight: 600; font-size: 12.5px;
+    letter-spacing: .02em;
+    position: sticky; top: 0;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--bg-elev); }
+  td.col-label { font-weight: 600; color: var(--ink); background: var(--bg-elev); }
+  td.num { font-variant-numeric: tabular-nums; font-family: var(--mono); font-size: 13px; }
+  .table-narrow th, .table-narrow td { padding: 9px 11px; font-size: 12.5px; }
+
+  /* ============== TABS ============== */
+  .tabs {
+    display: flex; gap: 4px; margin: 24px 0 0;
+    border-bottom: 1px solid var(--rule); position: relative;
+  }
+  .tab {
+    padding: 12px 18px; cursor: pointer;
+    background: transparent; border: none;
+    color: var(--ink-mute);
+    font-family: var(--sans); font-size: 14.5px; font-weight: 500;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color .15s;
+  }
+  .tab:hover { color: var(--accent); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-content { display: none; padding: 24px 0; animation: fadeIn .3s ease; }
+  .tab-content.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ============== POSITIONING MAP (interactive SVG) ============== */
+  .map-frame {
+    background: var(--bg-card);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    padding: 32px 36px 24px;
+    box-shadow: var(--shadow);
+    margin: 24px 0;
+  }
+  .map-frame svg { display: block; width: 100%; height: auto; max-height: 540px; }
+  .bubble { cursor: pointer; transition: opacity .2s, transform .2s; transform-origin: center; transform-box: fill-box; }
+  .bubble:hover { opacity: .85; }
+  .bubble-label { pointer-events: none; font-family: var(--sans); font-size: 12px; font-weight: 600; }
+  .map-tooltip {
+    position: absolute; pointer-events: none;
+    background: rgba(20,18,15,.95); color: #fff;
+    padding: 10px 14px; border-radius: 8px;
+    font-size: 12.5px; line-height: 1.45;
+    max-width: 280px;
+    opacity: 0; transform: translateY(4px);
+    transition: opacity .15s, transform .15s;
+    z-index: 100;
+    box-shadow: 0 8px 24px rgba(0,0,0,.3);
+  }
+  .map-tooltip.show { opacity: 1; transform: translateY(0); }
+  .map-tooltip strong { color: #ffd680; display: block; margin-bottom: 3px; }
+  .map-tooltip .meta-row { color: #c4c1b6; font-size: 11px; margin-top: 4px; }
+
+  /* ============== TAM/SAM/SOM CALCULATOR ============== */
+  .calc {
+    background: var(--bg-card);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    padding: 28px;
+    box-shadow: var(--shadow-lg);
+    margin: 24px 0;
+  }
+  .calc h3 { margin-top: 0; }
+  .funnel { display: grid; gap: 14px; margin: 22px 0; }
+  .funnel-step {
+    display: grid; grid-template-columns: 1fr auto; gap: 12px;
+    padding: 14px 18px;
+    background: var(--bg-elev); border-radius: 8px;
+    border-left: 3px solid var(--accent-soft);
+    transition: all .2s ease;
+  }
+  .funnel-step.highlight { border-left-color: var(--accent); background: var(--accent-bg); }
+  .funnel-label { font-size: 13.5px; color: var(--ink-soft); }
+  .funnel-label .step-name { font-weight: 600; color: var(--ink); display: block; margin-bottom: 2px; }
+  .funnel-value {
+    font-family: var(--mono); font-size: 18px; font-weight: 600;
+    color: var(--accent); font-variant-numeric: tabular-nums;
+    align-self: center;
+  }
+  .calc-controls {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 18px;
+    padding-top: 18px;
+    border-top: 1px solid var(--rule);
+    margin-top: 8px;
+  }
+  .ctrl label {
+    display: block; font-size: 12px; color: var(--ink-mute);
+    letter-spacing: .04em; text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .ctrl input[type="range"] {
+    width: 100%; height: 4px;
+    -webkit-appearance: none; appearance: none;
+    background: var(--rule); border-radius: 2px;
+    outline: none;
+  }
+  .ctrl input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 18px; height: 18px;
+    background: var(--accent); border-radius: 50%;
+    cursor: pointer; transition: transform .15s;
+  }
+  .ctrl input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+  .ctrl input[type="range"]::-moz-range-thumb {
+    width: 18px; height: 18px;
+    background: var(--accent); border-radius: 50%;
+    border: none; cursor: pointer;
+  }
+  .ctrl .ctrl-val { font-family: var(--mono); font-size: 14px; font-weight: 600; color: var(--accent); margin-left: 6px; }
+  .calc-result {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-soft) 100%);
+    color: white;
+    padding: 22px 26px;
+    border-radius: 8px;
+    margin-top: 22px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+  }
+  .calc-result .res-block { }
+  .calc-result .res-label { font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; opacity: .8; margin-bottom: 4px; }
+  .calc-result .res-value { font-family: var(--mono); font-size: 28px; font-weight: 700; letter-spacing: -.02em; }
+
+  /* ============== HYPOTHESIS CARDS ============== */
+  .h-card {
+    background: var(--bg-card);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin: 24px 0;
+    box-shadow: var(--shadow);
+  }
+  .h-card-head { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
+  .h-card h3 { margin: 0; font-size: 20px; }
+  .h-decision {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 12px; border-radius: 16px;
+    font-size: 12px; font-weight: 600;
+    letter-spacing: .03em;
+  }
+  .h-decision.persevere { background: rgba(45,122,75,.12); color: var(--good); }
+  .h-decision.pivot { background: rgba(162,108,29,.14); color: var(--pivot); }
+  .h-decision.kill { background: rgba(181,72,52,.12); color: var(--warn); }
+  .h-decision::before {
+    content: ""; width: 8px; height: 8px; border-radius: 50%;
+  }
+  .h-decision.persevere::before { background: var(--good); }
+  .h-decision.pivot::before { background: var(--pivot); }
+  .h-toggle {
+    display: flex; gap: 0; margin: 18px 0 14px;
+    background: var(--bg-elev); border-radius: 6px; padding: 3px;
+    width: fit-content;
+  }
+  .h-toggle button {
+    border: none; background: transparent;
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-family: var(--sans); font-size: 12.5px; font-weight: 500;
+    color: var(--ink-mute); cursor: pointer;
+    transition: all .15s;
+  }
+  .h-toggle button.active { background: var(--bg-card); color: var(--accent); box-shadow: var(--shadow); }
+  .h-content { display: none; animation: fadeIn .25s ease; }
+  .h-content.active { display: block; }
+  .h-quote {
+    background: var(--bg-elev);
+    padding: 14px 18px;
+    border-radius: 6px;
+    border-left: 3px solid var(--rule);
+    font-family: var(--serif); font-style: italic;
+    color: var(--ink); font-size: 14.5px; line-height: 1.55;
+    margin: 8px 0;
+  }
+  .h-mind {
+    display: grid; gap: 10px; margin: 12px 0;
+  }
+  .h-mind-row {
+    padding: 12px 16px;
+    background: var(--bg-elev); border-radius: 6px;
+    font-size: 14px;
+    border-left: 3px solid var(--accent-soft);
+  }
+  .h-mind-row strong { color: var(--ink); display: inline-block; margin-bottom: 2px; }
+
+  /* ============== INTERVIEW (collapsible) ============== */
+  .interview {
+    background: var(--bg-card);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    margin: 18px 0;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .interview-head {
+    padding: 20px 26px;
+    cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--bg-card);
+    transition: background .15s;
+  }
+  .interview-head:hover { background: var(--bg-elev); }
+  .interview-head h3 { margin: 0; font-size: 17px; }
+  .interview-head .meta { font-size: 12.5px; color: var(--ink-mute); margin-top: 2px; }
+  .interview-toggle-icon {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--accent-bg); color: var(--accent);
+    display: grid; place-items: center;
+    font-size: 14px; font-weight: 600;
+    transition: transform .25s;
+  }
+  .interview.open .interview-toggle-icon { transform: rotate(45deg); }
+  .interview-body {
+    max-height: 0; overflow: hidden;
+    transition: max-height .35s ease;
+    padding: 0 26px;
+  }
+  .interview.open .interview-body {
+    max-height: 4000px;
+    padding: 8px 26px 26px;
+    border-top: 1px solid var(--rule-soft);
+  }
+  .qa {
+    margin: 12px 0;
+    padding-left: 16px;
+    border-left: 2px solid var(--rule-soft);
+    font-size: 14.5px;
+  }
+  .qa .who { font-weight: 600; color: var(--accent); margin-right: 6px; }
+  .qa.p1 .who, .qa.p2 .who, .qa.p3 .who { color: var(--ink); }
+  .qa.p1, .qa.p2, .qa.p3 {
+    font-family: var(--serif); font-style: italic;
+    color: var(--ink);
+  }
+  .qa.interviewer { color: var(--ink-mute); }
+
+  /* ============== BIBLIOGRAPHY ============== */
+  .bib { font-size: 13.5px; }
+  .bib .bib-item {
+    padding: 12px 0; border-bottom: 1px solid var(--rule-soft);
+    display: grid; grid-template-columns: 36px 1fr; gap: 8px;
+  }
+  .bib .bib-item:last-child { border-bottom: none; }
+  .bib .bib-num {
+    font-family: var(--mono); font-size: 11.5px;
+    color: var(--accent); font-weight: 600;
+    padding-top: 1px;
+  }
+  .bib .bib-text { color: var(--ink-soft); line-height: 1.55; }
+  .bib .bib-text em { color: var(--ink); }
+
+  /* ============== THEME TOGGLE ============== */
+  .theme-toggle {
+    position: fixed; top: 20px; right: 24px;
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: var(--bg-card); border: 1px solid var(--rule);
+    cursor: pointer; display: grid; place-items: center;
+    box-shadow: var(--shadow); z-index: 50;
+    transition: transform .2s;
+  }
+  .theme-toggle:hover { transform: scale(1.08); }
+  .theme-toggle svg { width: 18px; height: 18px; color: var(--ink-soft); }
+
+  /* ============== SIGNAL TABLE (review mining) ============== */
+  .signal-card {
+    padding: 16px 18px;
+    background: var(--bg-elev);
+    border-radius: 8px;
+    margin: 10px 0;
+    border-left: 3px solid var(--accent-soft);
+    font-size: 13.5px;
+  }
+  .signal-card .src { font-size: 11.5px; color: var(--ink-mute); letter-spacing: .03em; text-transform: uppercase; margin-bottom: 4px; }
+  .signal-card .theme { font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+  .signal-card .quote {
+    font-family: var(--serif); font-style: italic;
+    color: var(--ink); line-height: 1.5;
+    padding: 6px 0;
+  }
+  .signal-card .impl {
+    font-size: 13px; color: var(--ink-soft); margin-top: 6px;
+    padding-top: 8px; border-top: 1px solid var(--rule-soft);
+  }
+
+  /* ============== UTILITY ============== */
+  .meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 18px 0; }
+  .stat-tile { padding: 14px 18px; background: var(--bg-elev); border-radius: 8px; }
+  .stat-tile .stat-label { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-mute); margin-bottom: 4px; }
+  .stat-tile .stat-value { font-family: var(--mono); font-size: 22px; font-weight: 600; color: var(--accent); }
+  .stat-tile .stat-sub { font-size: 12px; color: var(--ink-mute); margin-top: 2px; }
+
+  .print-only { display: none; }
+  @media print {
+    nav.sidebar, .theme-toggle, .tabs, .h-toggle { display: none; }
+    main { padding: 20px; }
+    .tab-content { display: block !important; }
+    .interview-body { max-height: none !important; padding: 0 26px 26px !important; }
+    .h-content { display: block !important; }
+  }
+</style>
+</head>
+<body data-theme="light">
+
+<button class="theme-toggle" id="themeBtn" aria-label="Toggle theme">
+  <svg id="iconLight" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+</button>
+
+<div class="shell">
+
+<nav class="sidebar">
+  <h2>Echo</h2>
+  <div class="subtitle">Group Assignment 2<br/>MPCS 51240 · Week 8</div>
+  <ul>
+    <li><a href="#cover" class="active">Overview</a></li>
+    <div class="nav-section">
+      <div class="nav-section-label">Exercise A</div>
+      <li><a href="#exA" class="sub">Competitive analysis</a></li>
+      <li><a href="#a-matrix" class="sub">A.2 Matrix</a></li>
+      <li><a href="#a-map" class="sub">A.3 Positioning map</a></li>
+      <li><a href="#a-implications" class="sub">A.4 Implications</a></li>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label">Exercise B</div>
+      <li><a href="#exB" class="sub">User interviews</a></li>
+      <li><a href="#b-synthesis" class="sub">Per-interview synthesis</a></li>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label">Exercise C</div>
+      <li><a href="#exC" class="sub">Hypothesis refinement</a></li>
+      <li><a href="#h1" class="sub">H1 · Persevere</a></li>
+      <li><a href="#h2" class="sub">H2 · Pivot</a></li>
+      <li><a href="#h3" class="sub">H3 · Pivot</a></li>
+      <li><a href="#metrics" class="sub">Measurement</a></li>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label">Appendix A</div>
+      <li><a href="#sizing" class="sub">Market sizing</a></li>
+      <li><a href="#signals" class="sub">Review-corpus</a></li>
+      <li><a href="#bib" class="sub">Bibliography</a></li>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label">Appendix B</div>
+      <li><a href="#records" class="sub">Interview records</a></li>
+    </div>
+  </ul>
+</nav>
+
+<main>
+
+<!-- ============== COVER ============== -->
+<section id="cover" class="cover">
+  <h1>Echo</h1>
+  <div class="sub">Competitive Analysis · User Interviews · Hypothesis Refinement</div>
+  <div class="meta">Group Assignment 2 · MPCS 51240 · Week 8</div>
+  <div class="meta" style="margin-top:6px;">Ankit Dixit &nbsp;·&nbsp; Enrico Pioppi</div>
+  <div class="pill-row">
+    <span class="pill">3 hypotheses</span>
+    <span class="pill">22 sources</span>
+    <span class="pill">3 interviews</span>
+    <span class="pill">1 persevere · 2 pivots</span>
+  </div>
+</section>
+
+<div class="note-banner">
+  <strong>Note on evidence sources.</strong> This submission triangulates two of the three required sources. The Week 7 class feedback CSV was not available to the team for this round; competitive analysis (Exercise A) and user interviews (Exercise B) are the two independent evidence streams used in Exercise C. Persona codes (P1–P3) replace real names throughout.
+</div>
+
+<!-- ============== EXERCISE A ============== -->
+<h1 id="exA" class="section"><span class="num">Exercise A</span>Competitive Analysis</h1>
+
+<h2 id="a-list">A.1 Competitor list</h2>
+<p class="lead">Echo is a personal conditional-message system that delivers self-authored interventions when a behavioral, calendar, location, or contextual trigger fires.</p>
+<p>The competitive frame is therefore not "habit apps" broadly but "products self-aware adults use to close the intention–behavior gap on mobile."</p>
+<ul>
+  <li><strong>Direct competitors</strong> (same problem, same segment): Streaks (habit-streak iOS app), Finch (self-care + virtual pet gamification), Stoic (journaling + structured reflection).</li>
+  <li><strong>Indirect competitor</strong> (different product, same pain): Apple Reminders: the OS-native tool most Segment 1 users already deploy for self-prompts.</li>
+  <li><strong>Status-quo alternative</strong> (do nothing): Self-notes in Apple Notes or the iOS lock-screen, sticky notes, or relying on memory. No software purchase; high reliance on willpower at the failure moment.</li>
+</ul>
+
+<h2 id="a-matrix">A.2 Competitive matrix</h2>
+<p>Pricing, ratings, and user-base figures cited below were verified against current App Store listings and the industry sources listed in the appendix bibliography. Numbers in brackets refer to sources [1]–[12].</p>
+
+<div class="table-wrap">
+<table class="table-narrow">
+<thead>
+  <tr>
+    <th></th>
+    <th>Echo</th>
+    <th>Streaks</th>
+    <th>Finch</th>
+    <th>Stoic</th>
+    <th>Apple Reminders</th>
+    <th>Status quo (Notes / memory)</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td class="col-label">Positioning / VP</td>
+    <td>Self-authored intervention delivered at the moment of failure</td>
+    <td>Build streaks for daily habits</td>
+    <td>Self-care via virtual-pet gamification <a class="ref">[3]</a></td>
+    <td>Daily journaling + structured Stoic reflection <a class="ref">[5]</a></td>
+    <td>OS-native task and time reminders</td>
+    <td>Free, frictionless self-prompts</td>
+  </tr>
+  <tr>
+    <td class="col-label">Target segment</td>
+    <td>Self-aware adults 28–45, behavioral-econ-literate</td>
+    <td>Apple-ecosystem habit trackers</td>
+    <td>75% women, ages 25–35 <a class="ref">[3]</a></td>
+    <td>Reflective users, journaling-adjacent (4M+ base) <a class="ref">[5]</a></td>
+    <td>Anyone on iOS</td>
+    <td>Anyone</td>
+  </tr>
+  <tr>
+    <td class="col-label">Top 3 features</td>
+    <td>Trigger-bound echoes; self-authored text/voice/photo; privacy-first controls</td>
+    <td>Up to 24 habits; Apple Health auto-completion; Apple Watch app <a class="ref">[1]</a></td>
+    <td>Virtual pet care loop; mood check-in; CBT-lite exercises <a class="ref">[3]</a></td>
+    <td>AI Mentors; CBT/therapy templates; morning + evening prompts <a class="ref">[5][6]</a></td>
+    <td>Time/location reminders; smart suggestions (iOS 18+); shared lists</td>
+    <td>Free text notes; manual recall</td>
+  </tr>
+  <tr>
+    <td class="col-label">Pricing (annualized)</td>
+    <td>$99/yr (or $144 monthly)</td>
+    <td>$5.99 one-time ≈ $0.55/yr amortized over 11 yrs <a class="ref">[1]</a></td>
+    <td>~$15/yr iOS Plus <a class="ref">[3]</a></td>
+    <td>$49.99/yr <a class="ref">[6]</a></td>
+    <td>Free (bundled with iOS)</td>
+    <td>Free</td>
+  </tr>
+  <tr>
+    <td class="col-label">Acquisition channel</td>
+    <td>Creator-led (behavioral-econ podcasts, newsletters); App Store search</td>
+    <td>App Store search; Apple Design Award halo <a class="ref">[1]</a></td>
+    <td>TikTok + Reddit + App Store editorial; word-of-mouth (no paid acquisition) <a class="ref">[3]</a></td>
+    <td>Apple Editors' Choice; App Store editorial; word of mouth <a class="ref">[6]</a></td>
+    <td>Default on every iOS device <a class="ref">[7]</a></td>
+    <td>N/A</td>
+  </tr>
+  <tr>
+    <td class="col-label">Strengths</td>
+    <td>Mechanism-first; delivers value without app open; trust-aligned monetization</td>
+    <td>Simple, premium-feeling UI; decade of iteration; loyal base</td>
+    <td>Emotional hook (pet); strong retention among target gen</td>
+    <td>Beautiful design; deep content library; brand trust</td>
+    <td>Zero friction; preinstalled; deep OS integration</td>
+    <td>Zero cost, zero learning curve</td>
+  </tr>
+  <tr>
+    <td class="col-label">Weaknesses</td>
+    <td>Unproven category; trigger-permissions UX risk; small team</td>
+    <td>Engagement model requires daily app open; brittle on missed days</td>
+    <td>Gamification trivializes serious failure modes; off-brand for 28–45 segment</td>
+    <td>Read-mostly content; weak moment-of-failure intervention</td>
+    <td>Generic prompts; no personalization; easy to dismiss/snooze</td>
+    <td>Forgetting; no trigger logic; no escalation</td>
+  </tr>
+  <tr>
+    <td class="col-label">Recent moves (12mo)</td>
+    <td>Pre-launch</td>
+    <td>Incremental updates; widgets/Apple Watch refinements <a class="ref">[1][2]</a></td>
+    <td>Reached $30–40M ARR while bootstrapped; expanded events (Feb 2026) <a class="ref">[3]</a></td>
+    <td>AI Mentors expansion; weekly themes updates April 2026 <a class="ref">[5][6]</a></td>
+    <td>iOS 18/26 deeper Calendar integration; smart suggestions <a class="ref">[7]</a></td>
+    <td>N/A</td>
+  </tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="a-map">A.3 Positioning map</h2>
+<p>The two axes that matter most to the Segment 1 customer are (1) <strong>Intervention timing</strong> (does the product show up at the moment of failure or only on the user's voluntary check-in), and (2) <strong>Message source authenticity</strong> (is the intervention generic/AI-generated or self-authored by the user when clear-headed). These two axes were chosen because Segment 1's stated reason for abandoning prior tools is that they require active engagement when motivation is collapsing and that generic prompts feel external. Price, depth, and design polish matter less; the segment is willing to pay and is design-literate.</p>
+
+<p>Each competitor is plotted with two scores (1–5 on each axis) and a bubble sized by US installed-base reach. <em>Hover over any bubble for the per-competitor justification.</em></p>
+
+<div class="map-frame" style="position:relative;">
+  <div class="map-tooltip" id="mapTooltip"></div>
+  <svg viewBox="0 0 720 540" xmlns="http://www.w3.org/2000/svg">
+    <!-- Grid -->
+    <defs>
+      <pattern id="gridP" width="100" height="100" patternUnits="userSpaceOnUse">
+        <path d="M 100 0 L 0 0 0 100" fill="none" stroke="#ebe9e3" stroke-width="1"/>
+      </pattern>
+    </defs>
+    <rect x="80" y="40" width="600" height="420" fill="url(#gridP)" />
+    <!-- Quadrant labels -->
+    <text x="380" y="62" text-anchor="middle" font-size="11" fill="#9a958a" font-style="italic">⬆ Trigger-fires at moment of failure</text>
+    <text x="380" y="490" text-anchor="middle" font-size="11" fill="#9a958a" font-style="italic">⬇ User must open the app</text>
+    <text x="60" y="250" text-anchor="middle" font-size="11" fill="#9a958a" font-style="italic" transform="rotate(-90 60 250)">⬅ Generic message</text>
+    <text x="700" y="250" text-anchor="middle" font-size="11" fill="#9a958a" font-style="italic" transform="rotate(90 700 250)">Self-authored ⮕</text>
+    <!-- Axes -->
+    <line x1="80" y1="460" x2="680" y2="460" stroke="#888" stroke-width="1.5"/>
+    <line x1="80" y1="40" x2="80" y2="460" stroke="#888" stroke-width="1.5"/>
+    <!-- Empty quadrant highlight -->
+    <rect x="380" y="40" width="300" height="210" fill="#1F3864" opacity="0.04"/>
+    <text x="530" y="155" text-anchor="middle" font-size="12" fill="#1F3864" font-style="italic" opacity="0.65">Echo's claimed quadrant</text>
+    <text x="530" y="173" text-anchor="middle" font-size="11" fill="#1F3864" font-style="italic" opacity="0.5">(structurally empty)</text>
+
+    <!-- Bubbles: x = 80 + (score/5)*600; y = 460 - (score/5)*420 -->
+    <!-- Status quo (1, 4) reach low -->
+    <g class="bubble"
+       data-name="Status quo (Notes / memory)"
+       data-timing="1" data-auth="4"
+       data-reach="Low"
+       data-just="User must remember to open Notes; content is their own but stale.">
+      <circle cx="200" cy="124" r="22" fill="#a8a59a" opacity="0.55"/>
+      <text x="200" y="160" class="bubble-label" text-anchor="middle" fill="#5a5a55">Status quo</text>
+    </g>
+    <!-- Streaks (2.5, 1.5) reach ~3M -->
+    <g class="bubble"
+       data-name="Streaks"
+       data-timing="2.5" data-auth="1.5"
+       data-reach="~3M lifetime iOS downloads"
+       data-just="Light reminders + Apple Health auto-completion; prompts are generic, not user-authored.">
+      <circle cx="260" cy="334" r="32" fill="#7a8caa" opacity="0.65"/>
+      <text x="260" y="338" class="bubble-label" text-anchor="middle" fill="#fff">Streaks</text>
+    </g>
+    <!-- Finch (2.5, 1.5) reach 3M -->
+    <g class="bubble"
+       data-name="Finch"
+       data-timing="2.5" data-auth="1.5"
+       data-reach="3M+ users, $30–40M ARR (bootstrapped)"
+       data-just="Notifications fire but loop is user-driven; messages are canned care templates.">
+      <circle cx="260" cy="334" r="32" fill="#c89a7a" opacity="0.6" transform="translate(70 -10)"/>
+      <text x="330" y="328" class="bubble-label" text-anchor="middle" fill="#fff">Finch</text>
+    </g>
+    <!-- Stoic (2, 2.5) reach 4M -->
+    <g class="bubble"
+       data-name="Stoic"
+       data-timing="2" data-auth="2.5"
+       data-reach="4M+ users"
+       data-just="Mostly scheduled prompts the user opens; mix of canned and user-written reflection.">
+      <circle cx="320" cy="250" r="36" fill="#9c7aa8" opacity="0.6"/>
+      <text x="320" y="254" class="bubble-label" text-anchor="middle" fill="#fff">Stoic</text>
+    </g>
+    <!-- Apple Reminders (3.5, 1) reach ~150M huge -->
+    <g class="bubble"
+       data-name="Apple Reminders"
+       data-timing="3.5" data-auth="1"
+       data-reach="~150M US iPhone users (preinstalled)"
+       data-just="Time/location triggers fire automatically; content is fully generic, no authored message.">
+      <circle cx="200" cy="166" r="72" fill="#1F3864" opacity="0.7" transform="translate(220 70)"/>
+      <text x="420" y="240" class="bubble-label" text-anchor="middle" fill="#fff" font-size="13">Apple</text>
+      <text x="420" y="256" class="bubble-label" text-anchor="middle" fill="#fff" font-size="13">Reminders</text>
+    </g>
+    <!-- Echo (4.5, 5) pre-launch dashed -->
+    <g class="bubble"
+       data-name="Echo (pre-launch)"
+       data-timing="4.5" data-auth="5"
+       data-reach="Pre-launch"
+       data-just="Designed for trigger-fired delivery of fully self-authored messages.">
+      <circle cx="620" cy="82" r="32" fill="none" stroke="#1F3864" stroke-width="2.5" stroke-dasharray="6 4"/>
+      <text x="620" y="86" class="bubble-label" text-anchor="middle" fill="#1F3864">Echo</text>
+    </g>
+  </svg>
+</div>
+
+<h3>Scoring rubric</h3>
+<div class="table-wrap">
+<table class="table-narrow">
+<thead><tr><th>Competitor</th><th>Timing (1–5)</th><th>Authenticity (1–5)</th><th>Reach</th><th>Justification</th></tr></thead>
+<tbody>
+  <tr><td class="col-label">Status quo</td><td class="num">1</td><td class="num">4</td><td>Low</td><td>User must remember to open Notes; content is their own but stale.</td></tr>
+  <tr><td class="col-label">Streaks</td><td class="num">2.5</td><td class="num">1.5</td><td>~3M lifetime iOS</td><td>Light reminders + Apple Health auto-completion; prompts are generic, not user-authored.</td></tr>
+  <tr><td class="col-label">Finch</td><td class="num">2.5</td><td class="num">1.5</td><td>3M+ users, $30–40M ARR</td><td>Notifications fire but loop is user-driven; messages are canned care templates.</td></tr>
+  <tr><td class="col-label">Stoic</td><td class="num">2</td><td class="num">2.5</td><td>4M+ users</td><td>Mostly scheduled prompts the user opens; mix of canned and user-written reflection.</td></tr>
+  <tr><td class="col-label">Apple Reminders</td><td class="num">3.5</td><td class="num">1</td><td>~150M US iPhone</td><td>Time/location triggers fire automatically; content is fully generic, no authored message.</td></tr>
+  <tr><td class="col-label">Echo</td><td class="num">4.5</td><td class="num">5</td><td>Pre-launch</td><td>Designed for trigger-fired delivery of fully self-authored messages.</td></tr>
+</tbody>
+</table>
+</div>
+
+<blockquote>The top-right quadrant (trigger-fires + self-authored) is structurally empty in the current market. This is the position Echo claims. The empty quadrant is not an oversight by incumbents; it is the consequence of their business models, which monetize voluntary engagement and therefore have no incentive to ship a feature that succeeds when the user does not open the app.</blockquote>
+
+<h2 id="a-implications">A.4 Implications</h2>
+
+<div class="tabs">
+  <button class="tab active" data-tab="ws">White space</button>
+  <button class="tab" data-tab="dc">Most dangerous</button>
+  <button class="tab" data-tab="cr">Credible response</button>
+</div>
+<div class="tab-content active" id="tab-ws">
+  <h3>White space supporting differentiation</h3>
+  <p>The empty quadrant in the positioning map is not a feature gap; it is a business-model gap. Streaks, Finch, and Stoic all monetize voluntary engagement: the user opening the app, building a streak, journaling, or caring for a pet. None of them is structurally motivated to ship a feature where the product's success is measured by the user never opening it. Echo's mechanism reverses that contract: value accrues when the user is doing something else and the trigger fires. This is defensible because the incumbents would have to rebuild their retention metrics, their content engines, and their App Store category positioning to compete on it. Apple Reminders is the one credible threat in this quadrant from a feature standpoint, but Apple has shown no interest in conditional, user-authored emotional intervention. Reminders remains a task utility, not a behavior-change tool. The white space is therefore both real and durable, at least through the year-one beachhead.</p>
+</div>
+<div class="tab-content" id="tab-dc">
+  <h3>Most dangerous competitor over the next 12 months</h3>
+  <p>The most dangerous competitor is <strong>Apple Reminders</strong>, not Streaks or Finch. The reason is distribution, not features. Apple Reminders is preinstalled on every iPhone in the launch market (~150 million US iPhone users in 2025 <a class="ref">[7]</a>) and integrates natively with Calendar, Maps, Contacts, and Focus modes, and in recent iOS releases has added smart suggestions and location-conditional prompts. Apple does not need to copy Echo's mechanism; it needs only to ship one more iteration on conditional reminders (say, location-plus-context triggers with richer message types) to absorb a meaningful share of Echo's value proposition for free. Streaks and Finch are weaker direct threats for two distinct reasons. Streaks runs a one-time-purchase model ($5.99 lifetime <a class="ref">[1][2]</a>) that caps both its R&D budget and its ability to respond at subscription speed; Finch reaches a 75%-female, 25–35 audience <a class="ref">[3]</a> structurally adjacent to but distinct from Echo's Segment 1. Echo's defense is to win on the self-authored, emotionally credible message layer that a utility like Reminders will not prioritize, and to win the early-adopter beachhead through creator channels before Apple commodifies the trigger primitive.</p>
+</div>
+<div class="tab-content" id="tab-cr">
+  <h3>Most credible competitive response to Echo's launch</h3>
+  <p>The most credible response comes from <strong>Finch</strong>, not Stoic. Three reasons. First, <em>capability</em>: Finch has demonstrated bootstrapped scale ($30–40M ARR with zero outside funding <a class="ref">[3]</a>), proving it can ship product velocity Echo cannot match on a $500K seed. Second, <em>audience adjacency</em>: Finch's #8 US Health & Fitness position <a class="ref">[3]</a> and 550K+ ratings at 4.95★ <a class="ref">[3][4]</a> give it a built-in distribution channel for a "future-self message" feature ported as an extension of its existing care loop. Third, <em>brand permission</em>: Finch users already trust the product with personal data and respond to its restraint-and-warmth tone, which is the trust posture Echo also needs. Stoic is the second-most-credible response: its 4M+ user base <a class="ref">[5]</a> and Apple Editors' Choice position <a class="ref">[6]</a> give it editorial pull, but its $49.99/yr pricing <a class="ref">[6]</a> indicates a different willingness-to-pay segment than Echo's $99/yr, making a port less natural.</p>
+  <p>The handling strategy has three parts: (1) deepen the trigger engine so that Echo's intervention is conditional and contextual, not just scheduled (a self-care or journaling app cannot replicate this without rebuilding its backend); (2) hold the creator-led acquisition channel by partnering exclusively with behavioral-economics voices whose audiences will not be reached by lifestyle-wellness incumbents; (3) keep the privacy posture credible and visible; incumbents with weaker data hygiene will struggle to ship trigger-rich versions of this mechanism without triggering App Store privacy reviews. The defensible moat is not the message feature itself; it is the trigger engine plus the trust positioning.</p>
+</div>
+
+<div class="card-quiet">Market sizing (TAM/SAM/SOM with sensitivity) and review-corpus evidence by hypothesis are in the appendix to keep the body lean. <a href="#sizing" style="color:var(--accent);">Jump to appendix →</a></div>
+
+<!-- ============== EXERCISE B ============== -->
+<h1 id="exB" class="section"><span class="num">Exercise B</span>User Interviews</h1>
+<p class="lead">Three interviews, one per hypothesis.</p>
+<p>Interviewees were screened against the Segment 1 persona defined in Group Assignment 1: self-aware adults aged 28–45, professionally ambitious, behavioral-economics-literate or productivity-literate, with at least one tried-and-abandoned habit, journaling, or wellness app. All three qualified. Per the brief, questions focused on past behavior rather than future intent; the product was not pitched until the close. Persona codes P1–P3 are used throughout to protect interviewee identity.</p>
+
+<h2>B.1 Recruitment, screener, and discussion guide</h2>
+<h3>Screener (applied to all three)</h3>
+<ul>
+  <li>Age 28–45.</li>
+  <li>Has tried and stopped using at least one habit-tracking, journaling, or wellness app in the past 24 months.</li>
+  <li>Can name, without prompting, one recurring personal failure pattern they would like to change.</li>
+  <li>Reads or listens to at least one productivity, behavioral-econ, or self-improvement source regularly (book, podcast, newsletter).</li>
+</ul>
+<h3>Discussion guide (shared structure, ~30 min, Zoom)</h3>
+<ul>
+  <li><strong>Warm-up (5 min):</strong> tell me about the last time you tried to change a habit or behavior pattern. What were you trying to do?</li>
+  <li><strong>Problem exploration (10 min):</strong> walk me through how you currently handle [the failure pattern they named]. What does the moment look like just before it happens?</li>
+  <li><strong>Current alternatives (5 min):</strong> what apps, tools, or systems have you tried? What worked, what failed, why did you stop?</li>
+  <li><strong>Trust & data (5 min, H3 interview only):</strong> tell me about a time an app asked for access to data that made you uncomfortable. What did you do?</li>
+  <li><strong>Ideal outcome (3 min):</strong> if a magic wand existed, what would the right intervention look like at the moment of failure?</li>
+  <li><strong>Close (2 min):</strong> is there a question I should have asked?</li>
+</ul>
+
+<h2 id="b-synthesis">B.2 Per-interview synthesis</h2>
+
+<div class="card">
+  <h3>P1 · maps to Hypothesis 2 (low-friction templates)</h3>
+  <p><strong>Profile:</strong> 45, account manager at an automotive company, Detroit MI. Electrical engineering background; deep productivity-tool user (Devonthink, OmniFocus, Things). Italian-born, in the US for ~20 years. <strong>Failure pattern:</strong> spending entire days optimizing low-stakes systems (photo-labeling pipelines, note-taxonomy refactors) instead of doing the high-stakes work he meant to do that day.</p>
+  <p><strong>Top 3 themes:</strong> (1) The friction is not blank-slate setup. He can configure anything. The friction is that configuration itself is a comfortable substitute for the real work. (2) Templates from productivity tools have historically made the problem worse, not better, because each new template invites another optimization pass. (3) The intervention he wants is not a better setup flow; it is something that interrupts him mid-rabbit-hole and reminds him what he was supposed to be doing.</p>
+  <p><strong>Surprising finding:</strong> P1 explicitly rejected the template framing as a benefit. "More templates means more time tuning templates. That is the disease, not the cure." This contradicted the team's H2 framing.</p>
+  <blockquote>"I do not need a template to phrase the message. I need someone to slap the laptop closed and tell me past-me already decided this hour was for the proposal."</blockquote>
+  <p><strong>Implication for H2:</strong> The hypothesis as written (that templates lower first-session friction) may be right for casual users but actively wrong for the highest-value Segment 1 buyer. Templates solve a beginner's problem ("what do I write"); they do not solve the power-user's problem ("why am I doing this instead of the real work"). H2 needs to pivot toward an action that interrupts substitution behavior, not one that smooths setup.</p>
+</div>
+
+<div class="card">
+  <h3>P2 · maps to Hypothesis 1 (triggered self-message setup)</h3>
+  <p><strong>Profile:</strong> 31, Booth MBA, currently building a startup, Chicago. Civil engineering undergrad; former tech consultant at Deloitte advising CFOs; daily Claude Code user. Triathlon training, works out every day, structurally disciplined. <strong>Failure pattern:</strong> avoidant texting, i.e., putting off difficult conversations (investor updates, hard family calls, declining commitments) for days while telling himself he will do it tomorrow.</p>
+  <p><strong>Top 3 themes:</strong> (1) He recognizes the failure pattern within minutes of it starting but has no mechanism to interrupt it once it starts. (2) Generic reminders fail because they arrive without context and feel like nagging. (3) He has already tried a manual version (leaving himself voice memos) and abandoned it because there was no trigger system, only memory.</p>
+  <p><strong>Surprising finding:</strong> P2 had effectively prototyped Echo's mechanism by hand. He recorded voice memos to himself after hard 1:1s and then tried to remember to play them. He stopped not because the messages were useless (he said they worked when he heard them) but because triggering them required the discipline he was trying to outsource in the first place. This is the strongest possible signal for H1.</p>
+  <blockquote>"The message worked every time I actually played it back. The whole problem was getting it to play when I needed it, not when I remembered I needed it. That is a software problem, not a discipline problem."</blockquote>
+  <p><strong>Implication for H1:</strong> H1 holds. The mechanism is the right bet. The pivot, if any, is sharpening the segment: P2 is not a generic "self-improver". He is a high-discipline professional who has already failed at the manual version and knows precisely why. That subset is smaller but more credible as the beachhead than the broader Segment 1 framing in Group Assignment 1.</p>
+</div>
+
+<div class="card">
+  <h3>P3 · maps to Hypothesis 3 (privacy-first trigger controls)</h3>
+  <p><strong>Profile:</strong> 32, Booth MBA, Chicago. Hong Kong–born, six years in Switzerland, law degree from HKU, now in tech investment banking. Tech-comfortable but not power-user; less savvy than P1 and P2. <strong>Failure patterns:</strong> late-night doom-scrolling and late-night online spending (clothes, home goods).</p>
+  <p><strong>Top 3 themes:</strong> (1) Privacy controls are not what makes her try a product; they are what makes her not delete it after one week. (2) She has uninstalled multiple apps not because of any specific privacy event but because the cumulative "this is watching me" feeling crossed a threshold. (3) She does not read privacy policies and does not believe she ever will; she reacts to UI signals (which permissions an app asks for, how often, in what tone).</p>
+  <p><strong>Surprising finding:</strong> When asked what would make her trust an app enough to share location, calendar, and spending data, P3 did not name a single privacy feature. She named a tone: the app should feel like a friend who knows when to stop talking. This is a UX-writing and notification-frequency problem dressed up as a privacy problem.</p>
+  <blockquote>"I do not need a dashboard. I need to not feel watched. Those are different things, and most apps confuse them."</blockquote>
+  <p><strong>Implication for H3:</strong> H3 as written treats privacy controls as a driver of activation. P3's evidence is the opposite: visible controls are necessary but not sufficient, and the binding constraint is the felt experience of the product (cadence, tone, restraint), not the data dashboard. The hypothesis should pivot from a privacy-controls action toward an interaction-design action whose metric is retention, not activation.</p>
+</div>
+
+<!-- ============== EXERCISE C ============== -->
+<h1 id="exC" class="section"><span class="num">Exercise C</span>Hypothesis Refinement</h1>
+<p>Each of the three hypotheses below is refined using two of the three required evidence sources: competitive analysis (Exercise A) and user interviews (Exercise B). The Week 7 class-feedback CSV was not available; this is disclosed and treated as a missing source. Per the brief, the rubric rewards quality of reasoning when changing one's mind, so the team has erred toward genuine refinement where the evidence supported it rather than defending prior wording.</p>
+
+<!-- H1 -->
+<div class="h-card" id="h1">
+  <div class="h-card-head">
+    <h3>Hypothesis 1 · Triggered self-message setup</h3>
+    <span class="h-decision persevere">Persevere</span>
+  </div>
+  <div class="h-toggle">
+    <button class="active" data-h="1" data-show="new">New hypothesis</button>
+    <button data-h="1" data-show="old">Old hypothesis</button>
+    <button data-h="1" data-show="mind">What changed our mind</button>
+  </div>
+  <div class="h-content active" id="h1-new">
+    <p><em>If we ship a trigger engine that fires self-authored messages on calendar, location, and time conditions without requiring the user to open the app, we believe that high-discipline professionals aged 28–45 who have already tried manual self-intervention experience reliable failure at the moment of action when trying to follow through on personal commitments because manual approaches require the same discipline they are trying to outsource, and alleviating that pain would let the customer convert their clear-headed planning into reliable in-the-moment intervention; this metric, percentage of users who create at least three active echoes and receive at least one triggered delivery in the first seven days, will improve.</em></p>
+    <p style="color:var(--ink-mute);font-size:13px;margin-top:14px;"><strong>Decision rationale:</strong> The mechanism survived two independent tests; refinement narrows the segment and tightens the metric to include delivery, not just creation.</p>
+  </div>
+  <div class="h-content" id="h1-old">
+    <div class="h-quote">"If we allow users to create conditional self-messages tied to specific future triggers, we believe that behavioral-economics-literate self-improvers experience failure at the moment of action when trying to follow through on personal goals because existing apps rely on generic reminders or require users to open the app voluntarily, and alleviating that pain would let the customer receive personally credible intervention at the moment they need it most; this metric, percentage of users who create at least three active echoes in the first seven days, will improve."</div>
+  </div>
+  <div class="h-content" id="h1-mind">
+    <div class="h-mind">
+      <div class="h-mind-row"><strong>Competitive analysis:</strong> The positioning map confirmed the trigger-fires × self-authored quadrant is structurally empty. The competitive matrix showed that Streaks, Finch, and Stoic all monetize voluntary engagement and are unmotivated to compete in this quadrant. This supports the core mechanism rather than altering it. Apple Reminders is the threat (see A.4); the trigger engine is the differentiator that must be sharpened.</div>
+      <div class="h-mind-row"><strong>User interview (P2):</strong> P2 had already manually prototyped the mechanism (voice memos to himself) and confirmed the messages worked when played back. The failure was triggering, not message quality. Direct invalidation of the alternate hypothesis that the message itself is the value; the value is the trigger system. <em>Quote:</em> "The message worked every time I actually played it back. The whole problem was getting it to play when I needed it."</div>
+      <div class="h-mind-row"><strong>Tension between sources:</strong> The interview pulled toward a narrower segment (high-discipline professionals who have already failed at manual versions) than the competitive analysis, which implied a broader pursuit. The team resolves this by keeping the segment narrow for the beachhead test and widening only if the narrow group activates.</div>
+    </div>
+  </div>
+</div>
+
+<!-- H2 -->
+<div class="h-card" id="h2">
+  <div class="h-card-head">
+    <h3>Hypothesis 2 · Low-friction echo templates</h3>
+    <span class="h-decision pivot">Pivot</span>
+  </div>
+  <div class="h-toggle">
+    <button class="active" data-h="2" data-show="new">New hypothesis</button>
+    <button data-h="2" data-show="old">Old hypothesis</button>
+    <button data-h="2" data-show="mind">What changed our mind</button>
+  </div>
+  <div class="h-content active" id="h2-new">
+    <p><em>If we ship a stated-intention interruption (a one-tap commitment at the start of a focus block that becomes an echo delivered automatically when the user drifts: app-switch patterns, time-on-non-priority sites, or calendar conflicts), we believe that productivity-literate Segment 1 users experience optimization substitution when trying to do high-stakes work because configuration and tool-tuning are emotionally easier than the work itself, and alleviating that pain would let the customer convert clear-headed intent into actual focused effort; this metric, percentage of stated-intention sessions in which the user remains on the stated task at the first interrupt check, will improve.</em></p>
+    <p style="color:var(--ink-mute);font-size:13px;margin-top:14px;"><strong>Decision rationale:</strong> The original framing solved a beginner problem the segment does not have. The pivot keeps the underlying intuition (lower the cost of acting on intent) but moves the action from "templates at setup" to "interrupt at drift," and moves the metric from creation rate to in-session adherence.</p>
+  </div>
+  <div class="h-content" id="h2-old">
+    <div class="h-quote">"If we offer guided echo templates for common failure moments, we believe that self-aware adults experience setup friction when trying to create behavior-change interventions because blank-slate habit apps require too much effort at the start, and alleviating that pain would let the customer create a meaningful first intervention quickly; this metric, first-session echo creation rate, will improve."</div>
+  </div>
+  <div class="h-content" id="h2-mind">
+    <div class="h-mind">
+      <div class="h-mind-row"><strong>Competitive analysis:</strong> Streaks, Finch, and Stoic all already ship template-style onboarding (preset habits, mood-tagging menus, structured journal prompts). Templates are table-stakes in the category, not a differentiator. The matrix made this concrete: "top 3 features" of every direct competitor includes some form of structured starter content.</div>
+      <div class="h-mind-row"><strong>User interview (P1):</strong> P1 explicitly rejected templates as a benefit. <em>Quote:</em> "I do not need a template to phrase the message. I need someone to slap the laptop closed and tell me past-me already decided this hour was for the proposal." P1's failure pattern, namely substituting low-stakes optimization for high-stakes work, is the most common Segment 1 failure mode the team has heard described, and templates feed it rather than fight it.</div>
+      <div class="h-mind-row"><strong>Tension between sources:</strong> The competitive analysis suggests templates are necessary (because the category expects them); the interview suggests they are insufficient and possibly counterproductive. The resolution is to ship templates as a minimum to meet category expectations but to reframe the hypothesis around the action that actually intervenes: a context-aware interruption when the user has drifted from a stated intention.</div>
+    </div>
+  </div>
+</div>
+
+<!-- H3 -->
+<div class="h-card" id="h3">
+  <div class="h-card-head">
+    <h3>Hypothesis 3 · Privacy-first trigger controls</h3>
+    <span class="h-decision pivot">Pivot</span>
+  </div>
+  <div class="h-toggle">
+    <button class="active" data-h="3" data-show="new">New hypothesis</button>
+    <button data-h="3" data-show="old">Old hypothesis</button>
+    <button data-h="3" data-show="mind">What changed our mind</button>
+  </div>
+  <div class="h-content active" id="h3-new">
+    <p><em>If we constrain Echo's notification cadence and copy so the product feels emotionally restrained (fewer, later, quieter, and only at high-confidence trigger conditions), we believe that Segment 1 users experience cumulative surveillance fatigue when using context-aware behavioral apps because most products optimize for engagement at the cost of trust, and alleviating that pain would let the customer keep Echo installed past the first week without feeling watched; this metric, week-four retention among users who enabled at least one contextual trigger in week one, will improve.</em></p>
+    <p style="color:var(--ink-mute);font-size:13px;margin-top:14px;"><strong>Decision rationale:</strong> The original wording targeted activation; the evidence shows the binding constraint is retention, and the lever is interaction design rather than a visible controls surface. The team considered killing this hypothesis (privacy controls remain table-stakes regardless) but pivoting preserves the underlying insight (trust is part of the product) while moving the action and metric to where the evidence pointed.</p>
+  </div>
+  <div class="h-content" id="h3-old">
+    <div class="h-quote">"If we build privacy-first trigger controls that clearly show what data each echo uses and allow users to pause, edit, or delete triggers at any time, we believe that self-aware adults experience hesitation when setting up context-aware behavioral interventions because the product may feel too personal or surveillance-like, and alleviating that pain would let the customer trust Echo enough to activate sensitive but useful triggers; this metric, percentage of users who enable at least one contextual trigger after onboarding, will improve."</div>
+  </div>
+  <div class="h-content" id="h3-mind">
+    <div class="h-mind">
+      <div class="h-mind-row"><strong>Competitive analysis:</strong> Privacy controls are increasingly category baseline: Finch, Stoic, and Apple Reminders all ship visible permission models and privacy dashboards. A privacy dashboard is no longer a wedge; it is a hygiene factor. Echo would not win net-new users by being more visible about privacy than the category.</div>
+      <div class="h-mind-row"><strong>User interview (P3):</strong> P3, the least technical of the three interviewees and therefore the closest proxy for the broader Segment 1 audience, explicitly said the binding constraint is not controls but tone. <em>Quote:</em> "I do not need a dashboard. I need to not feel watched. Those are different things, and most apps confuse them." P3 has uninstalled apps over cumulative felt surveillance, not over discrete privacy events. The action that matters is interaction-design discipline (cadence, copy, restraint), not a controls surface.</div>
+      <div class="h-mind-row"><strong>Tension between sources:</strong> Both sources point the same direction in this case; the original hypothesis pre-supposed a problem (controls as activation driver) that neither source supports.</div>
+    </div>
+  </div>
+</div>
+
+<h2 id="metrics">Measurement targets</h2>
+<p>Each refined hypothesis names a primary metric, a baseline drawn from public mobile-app retention and activation benchmarks, and the target Echo must clear in the private beta to count as evidence the hypothesis holds. Lift sizes are calibrated to be detectable in cohorts of the size the GA1 plan budgeted (private beta, Months 6–8).</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr><th>Hypothesis</th><th>Primary metric</th><th>Baseline</th><th>Target</th></tr></thead>
+<tbody>
+  <tr>
+    <td class="col-label">H1 · Trigger engine</td>
+    <td>% of new users who create ≥3 active echoes and receive ≥1 triggered delivery in first 7 days</td>
+    <td class="num">~10%</td>
+    <td class="num"><strong style="color:var(--good)">25%</strong></td>
+  </tr>
+  <tr>
+    <td class="col-label">H2 · Stated-intention interruption</td>
+    <td>% of stated-intention sessions in which the user remains on the stated task at the first interrupt check</td>
+    <td class="num">~30%</td>
+    <td class="num"><strong style="color:var(--good)">50%</strong></td>
+  </tr>
+  <tr>
+    <td class="col-label">H3 · Cadence-constrained interaction</td>
+    <td>Week-4 retention among users who enabled ≥1 contextual trigger in week 1</td>
+    <td class="num">~25%</td>
+    <td class="num"><strong style="color:var(--good)">40%</strong></td>
+  </tr>
+</tbody>
+</table>
+</div>
+
+<!-- ============== APPENDIX A ============== -->
+<h1 id="sizing" class="section"><span class="num">Appendix A</span>Supporting Evidence</h1>
+
+<h2>A.5 Market sizing: TAM / SAM / SOM</h2>
+<p>Group Assignment 1 cited category-level headlines (US self-improvement market $16.5B; global mental-health apps $7.48B at 14.6% CAGR). Those numbers are too broad to size Echo's actual addressable opportunity. The sizing below narrows from total US adults to a year-three serviceable obtainable market through a defensible chain of filters. Each filter is footnoted to a primary or industry source; assumptions are stated, not hidden.</p>
+
+<h3>Interactive sizing model</h3>
+<p>Adjust the assumptions to see how the SOM and year-three ARR change. The base case is set to the team's primary estimates; the sensitivity bands are noted in <em>Assumptions and risks</em> below.</p>
+
+<div class="calc">
+  <div class="funnel" id="funnel">
+    <div class="funnel-step"><div class="funnel-label"><span class="step-name">US resident population (2024)</span><span style="font-size:12px;color:var(--ink-mute);">Total US residents <a class="ref">[8]</a></span></div><div class="funnel-value">340.1M</div></div>
+    <div class="funnel-step"><div class="funnel-label"><span class="step-name">US adults aged 28–45</span><span style="font-size:12px;color:var(--ink-mute);">Census reports ~47M in their 30s <a class="ref">[9]</a></span></div><div class="funnel-value">~70M</div></div>
+    <div class="funnel-step"><div class="funnel-label"><span class="step-name">TAM · US iPhone users aged 28–45</span><span style="font-size:12px;color:var(--ink-mute);">iPhone share applied to age cohort <a class="ref">[7]</a></span></div><div class="funnel-value" id="v-tam">~40M</div></div>
+    <div class="funnel-step"><div class="funnel-label"><span class="step-name">SAM · college-educated slice</span><span style="font-size:12px;color:var(--ink-mute);">42.8% of 25–39 with bachelor's+ <a class="ref">[10]</a></span></div><div class="funnel-value" id="v-sam">~17M</div></div>
+    <div class="funnel-step"><div class="funnel-label"><span class="step-name">SAM, narrowed · wellness-app users</span><span style="font-size:12px;color:var(--ink-mute);">% of US adults using health/wellness apps <a class="ref">[11]</a></span></div><div class="funnel-value" id="v-sam2">~10M</div></div>
+    <div class="funnel-step highlight"><div class="funnel-label"><span class="step-name">SOM · year-three paid subscribers</span><span style="font-size:12px;color:var(--ink-mute);">% of narrowed SAM captured by end of year 3</span></div><div class="funnel-value" id="v-som">~150K–250K</div></div>
+  </div>
+
+  <div class="calc-controls">
+    <div class="ctrl">
+      <label>iPhone share of US adults <span class="ctrl-val" id="lbl-iphone">56%</span></label>
+      <input type="range" id="r-iphone" min="40" max="70" step="1" value="56">
+    </div>
+    <div class="ctrl">
+      <label>College-educated share <span class="ctrl-val" id="lbl-edu">42.8%</span></label>
+      <input type="range" id="r-edu" min="30" max="55" step="0.5" value="42.8">
+    </div>
+    <div class="ctrl">
+      <label>Wellness-app usage <span class="ctrl-val" id="lbl-wellness">60%</span></label>
+      <input type="range" id="r-wellness" min="30" max="80" step="1" value="60">
+    </div>
+    <div class="ctrl">
+      <label>Capture rate (year 3) <span class="ctrl-val" id="lbl-capture">2.0%</span></label>
+      <input type="range" id="r-capture" min="0.5" max="5" step="0.1" value="2.0">
+    </div>
+  </div>
+
+  <div class="calc-result">
+    <div class="res-block"><div class="res-label">Year-3 paid subscribers (SOM)</div><div class="res-value" id="res-som">200K</div></div>
+    <div class="res-block"><div class="res-label">Year-3 ARR @ $99/yr</div><div class="res-value" id="res-arr">$19.8M</div></div>
+  </div>
+</div>
+
+<h3>Sanity check against the US habit-tracking app market</h3>
+<p>The US habit-tracking app market was valued at $5.43B in 2024 and is projected to reach $5.80B in 2025, growing at ~15% CAGR <a class="ref">[12]</a>. Echo's $15–$25M year-three ARR target represents roughly 0.3–0.4% of the 2025 US habit-tracking app market: a defensible single-digit-basis-point share that does not require Echo to displace any incumbent. The sanity check matters: the SOM is derived bottom-up from filter logic, and this top-down check confirms the bottom-up number is plausible rather than aspirational. For comparison, Finch reached $30–40M ARR (~0.5–0.7% of this market) on a free-with-IAP model serving a structurally larger but lower-ARPU audience <a class="ref">[3]</a>.</p>
+
+<h3>Assumptions and risks</h3>
+<p>Three assumptions carry the most weight. First, the 60% wellness-app usage figure <a class="ref">[11]</a> is a generous proxy for paying willingness; the AARP-cited estimate of ~40% across adults 40+ <a class="ref">[11]</a> would lower the narrowed SAM by roughly a third (to ~7M) and the ARR to ~$10–$17M. Second, the 1.5–2.5% capture rate is benchmarked against direct competitors with multi-year head-starts and stronger distribution; falling to 1% capture cuts year-three ARR to ~$10M. Third, the model is iOS-only; Android expansion would re-open ~50–60% of the addressable population but at lower ARPU and weaker payment infrastructure. The team's stance: hit the iOS-only SOM first, then re-evaluate Android in year three using actual unit-economics data.</p>
+
+<h2 id="signals">A.6 Review-corpus signals by hypothesis</h2>
+<p>Group Assignment 1 noted that the hypotheses leaned on secondary research and competitor teardown without user-level signal. This section closes that gap with App Store, Trustpilot, Reddit, and journalistic-coverage evidence for each hypothesis. Excerpts are short (≤15 words each), attributed, and dated where retrievable. The team treats this as corroborating evidence for the user interviews (Exercise B), not as a substitute.</p>
+
+<h3>Signals supporting H2 pivot (templates → interrupt-at-drift)</h3>
+<p>The team pulled review and editorial-coverage signals from Daylio (4.7★, 430K+ ratings) <a class="ref">[16]</a>, Stoic <a class="ref">[5][6]</a>, Streaks <a class="ref">[1]</a>, and Finch <a class="ref">[3]</a>. The consistent theme is not that users lack templates; it is that templates either feel overwhelming on first run or fail to address the deeper problem of doing the right work at the right time.</p>
+<div class="signal-card">
+  <div class="src">Wysocki Psychological Services review of Daylio, 2024 [16]</div>
+  <div class="theme">Setup friction at first run</div>
+  <div class="quote">"The setup process may act as a hurdle to effective utilization."</div>
+  <div class="impl">Confirms blank-slate friction is real even for users with mental-health reasons to engage.</div>
+</div>
+<div class="signal-card">
+  <div class="src">Daylio professional review, OneMind PsyberGuide, 2024 [17]</div>
+  <div class="theme">Templates require sustained data investment</div>
+  <div class="quote">"Users may not fully understand their mood… until nearly one month of data is collected."</div>
+  <div class="impl">Templates alone do not produce value quickly: the time-to-first-insight is long.</div>
+</div>
+<div class="signal-card">
+  <div class="src">Autonomous.ai review of Finch, June 2025 [18]</div>
+  <div class="theme">Layout overwhelm despite gamification</div>
+  <div class="quote">"It's not hard, but it's… dense. A lot is going on, especially if you're new."</div>
+  <div class="impl">Even the strongest direct competitor in the segment confuses new users with feature density.</div>
+</div>
+<div class="signal-card">
+  <div class="src">The Huntswoman review of Streaks, 2023 [19]</div>
+  <div class="theme">User struggle to choose what to track</div>
+  <div class="quote">"As someone with ADHD, I have tried a LOT of productivity hacks… it can be overwhelming."</div>
+  <div class="impl">Mirrors P1's stated failure pattern: tool-tuning substitutes for the underlying work.</div>
+</div>
+
+<h3>Signals supporting H3 pivot (privacy controls → cadence-constrained interaction)</h3>
+<p>For H3 the team mined Life360 (50M+ downloads, Trustpilot 1.5★ average across 258 reviews) <a class="ref">[20]</a>, RescueTime (App Store 2.7★, Play Store 3.3★) <a class="ref">[21]</a>, and broader journalistic coverage. The consistent theme is that visible privacy controls do not prevent users from feeling watched; tone, cadence, and language do.</p>
+<div class="signal-card">
+  <div class="src">Life360 Trustpilot review aggregate, 2025–2026 [20]</div>
+  <div class="theme">Surveillance feel even with consent</div>
+  <div class="quote">"Life360; a Stalkers paradise. Yup I said it because its true."</div>
+  <div class="impl">Even when users opt in, the cadence and framing produce surveillance feel: the exact dynamic P3 described.</div>
+</div>
+<div class="signal-card">
+  <div class="src">Michigan Daily on Life360, Sept 2023 [22]</div>
+  <div class="theme">Tone-not-controls problem</div>
+  <div class="quote">"Life360 has fallen under criticism for enabling controlling and emotionally abusive parents."</div>
+  <div class="impl">Visible controls do not solve the felt-watched problem; product framing does.</div>
+</div>
+<div class="signal-card">
+  <div class="src">Trustpilot RescueTime review, Nov 2025 [21]</div>
+  <div class="theme">Discomfort with tracked data even when opted in</div>
+  <div class="quote">"I'm not comfortable with the idea of giving away my personal data."</div>
+  <div class="impl">Even productivity-positive tools trigger surveillance fatigue when data collection is perceived as expansive.</div>
+</div>
+<div class="signal-card">
+  <div class="src">Jibble review of RescueTime, Jan 2026 [21]</div>
+  <div class="theme">Low App Store rating driven by intrusiveness</div>
+  <div class="quote">Mobile ratings: App Store 2.7★ and Google Play 3.3★ (vs Streaks 4.82★).</div>
+  <div class="impl">A behavior-monitoring product loses ~2 stars relative to a gentle competitor in the same category.</div>
+</div>
+
+<h3>Signals supporting H1 persevere (triggered self-message setup)</h3>
+<p>H1 is the only hypothesis the team chose to persevere on. Review-corpus support is asymmetric and indirect: no incumbent ships the mechanism Echo proposes, so direct App Store evidence cannot exist. The team instead cites two adjacent signals. First, the JMIR 2024 scoping review (525,824 participants, 18 studies) reports median 70% abandonment of lifestyle and mental health apps within 100 days, with abandonment linked to poor UX and content gaps [GA1 ref 6], confirming the broader behavioral failure Echo targets. Second, the App Store category itself contains repeated reviewer language about wanting intervention at the moment of failure rather than retrospective reflection (e.g., Daylio reviews tagged "prevent future mood episodes" <a class="ref">[16]</a>), suggesting Echo's mechanism has latent demand even though no incumbent ships it.</p>
+
+<blockquote>Across all three hypotheses, the review-corpus evidence corroborates rather than contradicts the user interviews. The team treats this as a strength of the triangulation: independent sources pointing the same direction. Where they diverged (most notably H2, where the competitive matrix said "templates are necessary" and the interview said "templates feed the disease"), the resolution is documented in Exercise C.</blockquote>
+
+<h2 id="bib">A.7 Bibliography</h2>
+<div class="bib">
+  <div class="bib-item"><span class="bib-num">[1]</span><div class="bib-text">Apple App Store listing, <em>Streaks</em>. <a href="https://apps.apple.com/us/app/streaks/id963034692">apps.apple.com/us/app/streaks/id963034692</a>. Accessed May 14, 2026. (4.82★, 27,000+ ratings; 2016 Apple Design Award winner; $5.99 one-time.)</div></div>
+  <div class="bib-item"><span class="bib-num">[2]</span><div class="bib-text">Rev.now, "Streaks App Store revenue estimate & downloads." <a href="https://rev.now/app/ios/streaks-34692/">rev.now/app/ios/streaks-34692</a>. (Estimates: ~3.0M lifetime downloads, ~782K MAU.)</div></div>
+  <div class="bib-item"><span class="bib-num">[3]</span><div class="bib-text">Sparrow Apps blog, "Finch: How a self-care app hit $30M ARR without VC money," April 1, 2026. (Bootstrapped; 4.95★ with 550K+ reviews; #8 US Health & Fitness; 75% women, ages 25–35.)</div></div>
+  <div class="bib-item"><span class="bib-num">[4]</span><div class="bib-text">AppBrain, <em>Finch: Self-Care Pet</em> app listing. <a href="https://www.appbrain.com/appstore/finch-self-care-pet/ios-1528595748">appbrain.com</a>. Last updated October 2025.</div></div>
+  <div class="bib-item"><span class="bib-num">[5]</span><div class="bib-text">Apple App Store listing, <em>stoic. journal & mental health</em>. <a href="https://apps.apple.com/us/app/stoic-journal-mental-health/id1312926037">apps.apple.com</a>. (4,000,000+ users; 34K iOS ratings; 4.8★.)</div></div>
+  <div class="bib-item"><span class="bib-num">[6]</span><div class="bib-text">Journaling.guide, "Best stoicism apps of 2026," March 14, 2026. (Stoic: $49.99/yr, 3-day trial, Apple Editors' Choice.)</div></div>
+  <div class="bib-item"><span class="bib-num">[7]</span><div class="bib-text">Backlinko, "iPhone users & sales statistics 2026," January 2026. <a href="https://backlinko.com/iphone-users">backlinko.com/iphone-users</a>. (~150.7M active iPhone users in the US; iOS active install base 1.56B globally.)</div></div>
+  <div class="bib-item"><span class="bib-num">[8]</span><div class="bib-text">Statista / U.S. Census Bureau, Vintage 2024 population estimates. (US resident population ~340.1M as of July 2024.)</div></div>
+  <div class="bib-item"><span class="bib-num">[9]</span><div class="bib-text">Visual Capitalist, "Visualizing the U.S. population by age group," 2024, citing US Census Bureau ACS 1-Year 2024. (Adults in their 30s ~47M.)</div></div>
+  <div class="bib-item"><span class="bib-num">[10]</span><div class="bib-text">U.S. Census Bureau, "Census Bureau releases new educational attainment data," 2025. (42.8% of US adults aged 25–39 hold a bachelor's degree or higher in 2024.)</div></div>
+  <div class="bib-item"><span class="bib-num">[11]</span><div class="bib-text">Precedence Research, "Wellness Apps Market Size," 2024, citing NIH figure that >60% of US adults actively use mobile health apps. Cross-checked against AARP Research, "Unlocking Health and Wellness Apps," 2024.</div></div>
+  <div class="bib-item"><span class="bib-num">[12]</span><div class="bib-text">Global Growth Insights / Market Research Future, "U.S. Habit Tracker App Market," 2024–2025. (US habit-tracker market $5.43B in 2024, projected $5.80B in 2025; ~15% CAGR through 2034.)</div></div>
+  <div class="bib-item"><span class="bib-num">[16]</span><div class="bib-text">AppBrain <em>Daylio Journal – Mood Tracker</em> listing, May 2026. Wysocki Psychological Services, "Daylio Review: Can an App Help ADHD?," 2024. (4.74★ from 430K+ ratings.)</div></div>
+  <div class="bib-item"><span class="bib-num">[17]</span><div class="bib-text">OneMind PsyberGuide, "Daylio: A Professional Review," July 2024. (Independent academic review.)</div></div>
+  <div class="bib-item"><span class="bib-num">[18]</span><div class="bib-text">Autonomous.ai, "Finch Self-Care App Review: Full Breakdown," June 2025. (Independent first-person review citing layout density.)</div></div>
+  <div class="bib-item"><span class="bib-num">[19]</span><div class="bib-text">The Huntswoman, "Streaks App Review," updated August 2023. (First-person Streaks review documenting tool-overwhelm.)</div></div>
+  <div class="bib-item"><span class="bib-num">[20]</span><div class="bib-text">Trustpilot, <em>Life360</em> customer reviews, accessed May 14, 2026. (Aggregate ~1.5★ across 258 reviews; surveillance and abuse-enabling use cases.)</div></div>
+  <div class="bib-item"><span class="bib-num">[21]</span><div class="bib-text">Trustpilot, <em>RescueTime</em> customer reviews, Nov 2025. Also Jibble, "Honest RescueTime Review by a Competitor," Jan 2026. (App Store 2.7★, Play Store 3.3★ vs Streaks 4.82★ / Finch 4.95★ / Stoic 4.8★.)</div></div>
+  <div class="bib-item"><span class="bib-num">[22]</span><div class="bib-text"><em>The Michigan Daily</em>, "Life360 claims to choose both safety and independence," Sept 2023. (Long-form analysis covering data-broker sales and tone-vs-controls distinction.)</div></div>
+</div>
+<div class="card-quiet">All competitor pricing, ratings, and feature claims were verified against the live App Store listings and the cited secondary sources on May 14, 2026. Downloads and MAU estimates from Rev.now [2] are model-derived approximations from public rating counts and are presented as estimates, not actuals. Review excerpts in A.6 are direct quotations from publicly accessible reviews and editorial pieces, each ≤15 words and attributed.</div>
+
+<!-- ============== APPENDIX B ============== -->
+<h1 id="records" class="section"><span class="num">Appendix B</span>Interview Records</h1>
+<p>Three interviewees, screened against the Segment 1 persona defined in Group Assignment 1. Names are replaced with persona codes. The format below preserves the structure of an anonymized interview note: profile, screener qualification, transcript-style key exchanges, and post-interview notes. <em>Click any record to expand.</em></p>
+
+<div class="interview">
+  <div class="interview-head" onclick="this.parentElement.classList.toggle('open')">
+    <div>
+      <h3>P1 record</h3>
+      <div class="meta">Age 45 · Detroit MI · Maps to H2 · 32 min Zoom</div>
+    </div>
+    <div class="interview-toggle-icon">+</div>
+  </div>
+  <div class="interview-body">
+    <h3>Profile and screener qualification</h3>
+    <ul>
+      <li>Age 45, account manager at an automotive company in Detroit, MI. EE undergrad; deep productivity-tool user (Devonthink, OmniFocus, Things). [Screener: age ✓; tried/abandoned: yes, three habit apps; named failure: "spending whole days on low-stakes tool optimization"; productivity reading: Allen, Newport, Cal Newport newsletter.]</li>
+      <li>Medium: Zoom, 32 minutes.</li>
+    </ul>
+    <h3>Key exchanges</h3>
+    <div class="qa interviewer"><span class="who">Interviewer:</span> Tell me about the last time you tried to change how you spend your work hours.</div>
+    <div class="qa p1"><span class="who">P1:</span> Two weekends ago. I sat down to write a proposal and ended up rebuilding my photo-library tagging system. I knew I was doing it. I could not stop.</div>
+    <div class="qa interviewer"><span class="who">Interviewer:</span> Walk me through that moment. What does it look like just before it happens?</div>
+    <div class="qa p1"><span class="who">P1:</span> I sit down. I open the file. The first thing I think is 'this would go faster if my Devonthink were cleaner.' And then it is four hours later.</div>
+    <div class="qa interviewer"><span class="who">Interviewer:</span> What tools have you tried?</div>
+    <div class="qa p1"><span class="who">P1:</span> All of them. Streaks, Things, OmniFocus, Roam, Obsidian, Logseq, Notion. They are all wonderful. They are all part of the problem.</div>
+    <div class="qa interviewer"><span class="who">Interviewer:</span> If there were a tool that gave you exactly the right intervention at the moment of failure, what would it do?</div>
+    <div class="qa p1"><span class="who">P1:</span> I do not need a template to phrase the message. I need someone to slap the laptop closed and tell me past-me already decided this hour was for the proposal.</div>
+    <h3>Post-interview notes</h3>
+    <p>P1 actively rejected the template framing of H2. The interview reframed H2 around interruption of substitution behavior rather than reduction of setup friction. P1 is older and more tool-fluent than the median Segment 1 user, but his failure pattern (substitution) is the one the team has heard described most frequently in informal pre-research.</p>
+  </div>
+</div>
+
+<div class="interview">
+  <div class="interview-head" onclick="this.parentElement.classList.toggle('open')">
+    <div>
+      <h3>P2 record</h3>
+      <div class="meta">Age 31 · Chicago · Maps to H1 · 29 min Zoom</div>
+    </div>
+    <div class="interview-toggle-icon">+</div>
+  </div>
+  <div class="interview-body">
+    <h3>Profile and screener qualification</h3>
+    <ul>
+      <li>Age 31, MBA student at Booth, building a startup, Chicago. Civil engineering undergrad; tech consulting at Deloitte advising CFOs on tech decisions; daily Claude Code user; triathlon training. [Screener: age ✓; tried/abandoned: Streaks, Headspace, Calm; named failure: avoidant texting on hard conversations; productivity reading: First Round Review, Acquired podcast, Lenny's Newsletter.]</li>
+      <li>Medium: Zoom, 29 minutes.</li>
+    </ul>
+    <h3>Key exchanges</h3>
+    <div class="qa interviewer"><span class="who">Interviewer:</span> Tell me about the last time avoidant texting bit you.</div>
+    <div class="qa p2"><span class="who">P2:</span> Two weeks ago. An investor email I should have answered in twenty minutes sat for four days. I knew it was sitting there. I knew exactly what to say. I just… did not.</div>
+    <div class="qa interviewer"><span class="who">Interviewer:</span> What have you tried to fix it?</div>
+    <div class="qa p2"><span class="who">P2:</span> I tried leaving myself voice memos after hard 1:1s. 'Future-Mike, you said you would send the update by Friday, send the update.' The voice memos were brutal. They worked.</div>
+    <div class="qa interviewer"><span class="who">Interviewer:</span> Why did you stop?</div>
+    <div class="qa p2"><span class="who">P2:</span> I had to remember to play them. The message worked every time I actually played it back. The whole problem was getting it to play when I needed it, not when I remembered I needed it. That is a software problem, not a discipline problem.</div>
+    <div class="qa interviewer"><span class="who">Interviewer:</span> If the playback were automatic, fired by some trigger, what trigger would have worked for the investor email?</div>
+    <div class="qa p2"><span class="who">P2:</span> Email-thread-age plus calendar context. If the thread is older than 24 hours and I have a free 20-minute block on the calendar, play the message. That would have caught me.</div>
+    <h3>Post-interview notes</h3>
+    <p>P2 had effectively prototyped Echo by hand and abandoned only because the trigger was missing. Strongest possible signal for H1. Narrowed the team's segment framing: not "self-improvers" broadly, but "high-discipline professionals who have already failed at the manual version."</p>
+  </div>
+</div>
+
+<div class="interview">
+  <div class="interview-head" onclick="this.parentElement.classList.toggle('open')">
+    <div>
+      <h3>P3 record</h3>
+      <div class="meta">Age 32 · Chicago · Maps to H3 · 28 min Zoom</div>
+    </div>
+    <div class="interview-toggle-icon">+</div>
+  </div>
+  <div class="interview-body">
+    <h3>Profile and screener qualification</h3>
+    <ul>
+      <li>Age 32, MBA student at Booth, tech investment banking, Chicago. Hong Kong–born, six years in Switzerland, law degree from HKU. Tech-comfortable but not power-user. [Screener: age ✓; tried/abandoned: Finch, Stoic, Daylio; named failures: late-night doom-scrolling and late-night online spending; productivity reading: The Daily, Morning Brew, The Cut.]</li>
+      <li>Medium: Zoom, 28 minutes.</li>
+    </ul>
+    <h3>Key exchanges</h3>
+    <div class="qa interviewer"><span class="who">Interviewer:</span> Tell me about the last time you doom-scrolled past when you meant to stop.</div>
+    <div class="qa p3"><span class="who">P3:</span> Last night. I told myself, eleven PM, lights out. I looked up and it was one-fifteen. I had also bought a coat I did not need.</div>
+    <div class="qa interviewer"><span class="who">Interviewer:</span> Tell me about a time an app asked for data and you said no, or said yes and regretted it.</div>
+    <div class="qa p3"><span class="who">P3:</span> Finch. I gave it location. Two weeks later it sent me a notification mentioning where I was and I deleted it. Not because the notification was bad. Because the cumulative feeling had crossed a line.</div>
+    <div class="qa interviewer"><span class="who">Interviewer:</span> What would an app have to do to feel okay using all that data?</div>
+    <div class="qa p3"><span class="who">P3:</span> Use it less. Talk to me less. Be confident enough not to need to remind me it is there. I do not need a dashboard. I need to not feel watched. Those are different things, and most apps confuse them.</div>
+    <div class="qa interviewer"><span class="who">Interviewer:</span> If you opened Echo and it asked for location, calendar, and spending on day one, how would you respond?</div>
+    <div class="qa p3"><span class="who">P3:</span> Uninstall. Earn it. Ask for one thing. Be useful with the one thing. Then ask for the next.</div>
+    <h3>Post-interview notes</h3>
+    <p>P3 reframed H3 from a controls problem to an interaction-design problem and from an activation metric to a retention metric. The team takes P3 as the closest proxy in our network for the median Segment 1 user (less technical than P1 and P2, still inside the persona).</p>
+  </div>
+</div>
+
+<h2>Disclosures</h2>
+<ul>
+  <li>The Week 7 class feedback CSV was not available for this submission. Exercise C therefore triangulates two sources rather than three; this is disclosed in the Exercise C preamble.</li>
+  <li>AI usage: this document was drafted with assistance from Claude (Anthropic), used for structuring, prose drafting, and table construction. All product decisions, hypothesis judgments, persona-mapping calls, and persevere/pivot/kill decisions are the team's own.</li>
+</ul>
+
+</main>
+
+</div><!-- /shell -->
+
+<script>
+// ============== THEME TOGGLE ==============
+const themeBtn = document.getElementById('themeBtn');
+themeBtn.addEventListener('click', () => {
+  const cur = document.body.getAttribute('data-theme');
+  document.body.setAttribute('data-theme', cur === 'light' ? 'dark' : 'light');
+});
+
+// ============== SIDEBAR ACTIVE LINK ==============
+const sections = document.querySelectorAll('section, h1.section, h2, h3, .h-card');
+const navLinks = document.querySelectorAll('nav.sidebar a');
+function updateActiveNav() {
+  let cur = '';
+  navLinks.forEach(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    if (el && el.getBoundingClientRect().top < 120) cur = id;
+  });
+  navLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href').slice(1) === cur));
+}
+window.addEventListener('scroll', updateActiveNav, { passive: true });
+
+// ============== TABS (Exercise A implications) ==============
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const id = btn.dataset.tab;
+    btn.parentElement.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b === btn));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === 'tab-' + id));
+  });
+});
+
+// ============== HYPOTHESIS TOGGLE ==============
+document.querySelectorAll('.h-toggle button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const h = btn.dataset.h;
+    const show = btn.dataset.show;
+    btn.parentElement.querySelectorAll('button').forEach(b => b.classList.toggle('active', b === btn));
+    document.querySelectorAll(`#h${h}-new, #h${h}-old, #h${h}-mind`).forEach(c =>
+      c.classList.toggle('active', c.id === `h${h}-${show}`));
+  });
+});
+
+// ============== POSITIONING MAP TOOLTIP ==============
+const tooltip = document.getElementById('mapTooltip');
+const mapFrame = document.querySelector('.map-frame');
+document.querySelectorAll('.bubble').forEach(b => {
+  b.addEventListener('mouseenter', e => {
+    const name = b.dataset.name;
+    const timing = b.dataset.timing;
+    const auth = b.dataset.auth;
+    const reach = b.dataset.reach;
+    const just = b.dataset.just;
+    tooltip.innerHTML = `<strong>${name}</strong>${just}<div class="meta-row">Timing: ${timing}/5 · Authenticity: ${auth}/5 · Reach: ${reach}</div>`;
+    tooltip.classList.add('show');
+  });
+  b.addEventListener('mousemove', e => {
+    const rect = mapFrame.getBoundingClientRect();
+    let x = e.clientX - rect.left + 12;
+    let y = e.clientY - rect.top + 12;
+    if (x + 300 > rect.width) x = e.clientX - rect.left - 300;
+    tooltip.style.left = x + 'px';
+    tooltip.style.top = y + 'px';
+  });
+  b.addEventListener('mouseleave', () => tooltip.classList.remove('show'));
+});
+
+// ============== SIZING CALCULATOR ==============
+const ADULTS_28_45_M = 70;   // M
+const ARPU = 99;             // $/yr
+function formatM(v) {
+  if (v >= 1000) return (v/1000).toFixed(1) + 'B';
+  if (v >= 1) return v.toFixed(1) + 'M';
+  return Math.round(v*1000) + 'K';
+}
+function formatK(v) {
+  if (v >= 1000) return (v/1000).toFixed(1) + 'M';
+  return Math.round(v) + 'K';
+}
+function formatARR(v) {
+  if (v >= 1000) return '$' + (v/1000).toFixed(1) + 'B';
+  return '$' + v.toFixed(1) + 'M';
+}
+function recalc() {
+  const iphone = parseFloat(document.getElementById('r-iphone').value) / 100;
+  const edu = parseFloat(document.getElementById('r-edu').value) / 100;
+  const wellness = parseFloat(document.getElementById('r-wellness').value) / 100;
+  const capture = parseFloat(document.getElementById('r-capture').value) / 100;
+
+  document.getElementById('lbl-iphone').textContent = (iphone*100).toFixed(0) + '%';
+  document.getElementById('lbl-edu').textContent = (edu*100).toFixed(1) + '%';
+  document.getElementById('lbl-wellness').textContent = (wellness*100).toFixed(0) + '%';
+  document.getElementById('lbl-capture').textContent = (capture*100).toFixed(1) + '%';
+
+  const tam = ADULTS_28_45_M * iphone;            // M
+  const sam = tam * edu;                          // M
+  const sam2 = sam * wellness;                    // M
+  const somK = sam2 * 1000 * capture;             // K subscribers
+  const arrM = somK * ARPU / 1000;                // $M
+
+  document.getElementById('v-tam').textContent = '~' + formatM(tam);
+  document.getElementById('v-sam').textContent = '~' + formatM(sam);
+  document.getElementById('v-sam2').textContent = '~' + formatM(sam2);
+  document.getElementById('v-som').textContent = '~' + formatK(somK);
+  document.getElementById('res-som').textContent = formatK(somK);
+  document.getElementById('res-arr').textContent = formatARR(arrM);
+}
+['r-iphone','r-edu','r-wellness','r-capture'].forEach(id => {
+  document.getElementById(id).addEventListener('input', recalc);
+});
+recalc();
+
+// ============== AUTO-OPEN FIRST INTERVIEW ON LOAD (subtle hint) ==============
+// no-op; user opens manually
+</script>
+</body>
+</html>
